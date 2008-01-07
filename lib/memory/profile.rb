@@ -6,7 +6,7 @@ module Memory
 
     LOG_FILE = "/tmp/memory_profile.log"
   
-    def MemoryProfile::report
+    def self.report
       Dir.chdir "/tmp"
       ObjectSpace::garbage_collect
       sleep 10 # Give the GC thread a chance
@@ -49,7 +49,7 @@ module Memory
       end
     end
   
-    def MemoryProfile::simple_count
+    def self.simple_count
       Dir.chdir "/tmp"
       ObjectSpace::garbage_collect
       sleep 10 # Give the GC thread a chance
@@ -62,7 +62,7 @@ module Memory
       
       open( LOG_FILE, 'a') do |outf|
         outf.puts '='*70
-        outf.puts "MemoryProfile report for #{$0}"
+        outf.puts "Memory::Profile report for #{$0}"
         outf.puts `cat /proc/#{Process.pid}/status`
         
         tally.keys.sort{|a,b| 
