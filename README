@@ -3,6 +3,10 @@ Memory
 
 Some libraries for reporting memory usage.
 
+== Requirements
+
+* Linux or OS X
+
 == License
 
 Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2005 John Carter and used with permission.
