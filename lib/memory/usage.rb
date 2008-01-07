@@ -5,32 +5,34 @@ module System
   class << self
     def memory
       result = {}
-      if `vmstat 2> /dev/null`.empty?
+      if RUBY_PLATFORM =~ /darwin/
         # OS X
         output = `vm_stat`.split("\n")
         result['page size'] = output.shift[/page size of (\d+) bytes/, 1].to_i
         output.each do |line|
           line =~ /([\w\s]+)"{0,1}:\s*(\d+)/
           key, value = $1, $2
-  
+
+          key.downcase!  
           key = case key
             when /Pages (.*)/
               $1 + " memory"
             when "pageouts"
               "pages paged out"
+            when "pageins"
+              "pages paged in"
             else
               key
           end          
-          result[key.downcase] = value.to_i
+          result[key] = value.to_i
         end      
       else
         # Linux
-        result['page size'] = LINUX_PAGE_SIZE
         output = `vmstat -s -S K`.split("\n")
         page_size = 1
         output.each do |line|
-          line =~ /(\d+)\s*(\w+)/
-          key, value = $1, $2
+          line =~ /(\d+)\s*([\w\s]+)/
+          key, value = $2, $1
           key.gsub!(/^K /, '')
           result[key] = value.to_i
         end      
@@ -43,7 +45,7 @@ module System
     def normalize_pages(hash)
       hash.each do |key, value|
         if key =~ /memory/
-          hash[key] = value * hash['page size']
+          hash[key] = value * (hash['page size'] or LINUX_PAGE_SIZE)
         end
       end
       hash
